@@ -11,6 +11,9 @@ function updateProps(dom, newProps) {
       for (let attr in styleObj) {
         dom.style[attr] = styleObj[attr];
       }
+    } else if (key.startsWith('on')) {
+      // 真实dom 事件
+      dom[key.toLocaleLowerCase()] = newProps[key]
     } else {
       dom[key] = newProps[key]
     }
@@ -39,19 +42,37 @@ function mountFunctionComponent(vdom) {
   return createDOM(renderVdom);
 }
 
+function mountClassComponent(vdom) {
+  let { type, props } = vdom;
+  // 创建类实例
+  let classInstance = new type(props);
+  let renderVdom = classInstance.render();
+  let dom =  createDOM(renderVdom);
+  // 为了以后类组件的更新 将真实dom 挂在到类的实例
+  classInstance.dom = dom;
+  return dom;
+}
+
 /**
  * 将虚拟节点变为 真实节点
  * @param vdom 虚拟节点
 */
-function createDOM(vdom) {
+export function createDOM(vdom) {
   if (typeof vdom === 'string' || typeof vdom === 'number') {
     return document.createTextNode(vdom)
   }
   // 否则 它就是一个虚拟DOM对象，也就是React元素
   const { type, props } = vdom;
   let dom;
-  if (typeof type === 'function') { // 自定义函数组建
-    return mountFunctionComponent(vdom);
+  if (typeof type === 'function') { 
+    if (type.isReactComponent) {
+      // 如果是类组件
+      return mountClassComponent(vdom);
+    } else {
+      // 自定义函数组建
+      return mountFunctionComponent(vdom);
+    }
+   
   } else {
     dom = document.createElement(type);
   }
