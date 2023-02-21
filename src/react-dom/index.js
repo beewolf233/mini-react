@@ -1,3 +1,5 @@
+import { addEvent } from '../react/event';
+
 /**
  * 使用虚拟dom的属性 更新到创建的真实DOM属性
  * @param dom 真实dom
@@ -13,7 +15,8 @@ function updateProps(dom, newProps) {
       }
     } else if (key.startsWith('on')) {
       // 真实dom 事件
-      dom[key.toLocaleLowerCase()] = newProps[key]
+      // dom[key.toLocaleLowerCase()] = newProps[key];
+      addEvent(dom, key.toLocaleLowerCase(), newProps[key])
     } else {
       dom[key] = newProps[key]
     }
@@ -100,7 +103,6 @@ export function createDOM(vdom) {
  * */ 
 function render(vdom, container) {
   const dom = createDOM(vdom);
-  console.log(vdom, 23344)
   container.appendChild(dom);
 }
 
