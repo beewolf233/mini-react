@@ -38,6 +38,7 @@ class Counter extends React.Component {
     this.state = {
       number: 0
     }
+    console.log('counter 1 constructor 初始化属性和状态对象')
   }
 
   handleClick = () => {
@@ -69,10 +70,33 @@ class Counter extends React.Component {
     //   console.log(this.state.number)
     //   this.setState({ number: this.state.number + 1})
     //   console.log(this.state.number)
-    // }, 1000)
+    // }, 1000) 
   }
 
+  // 生命周期
+  componentWillMount() {
+    console.log('counter 2 componentWillMount 组件将要挂载')
+  }
+
+  componentDidMount() {
+    console.log('counter 4 componentDidMount 组件挂载完成')
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log('counter 5 shouldComponentUpdate 决定组件是否更新')
+    return nextState.number ? nextState?.number % 2 === 0 : false;
+  }
+
+  componentWillUpdate() {
+    console.log('counter 6 componentWillUpdate 组件要更新')
+  }
+
+  componentDidUpdate() {
+    console.log('counter 7 componentDidUpdate 组件更新完成')
+  }
+  
   render() {
+    console.log('counter 3 渲染')
     return (
       <div>
         <p>{this.state.number}</p>
@@ -82,5 +106,46 @@ class Counter extends React.Component {
   }
 }
 
+class ChildCounter extends React.Component {
+
+  // 生命周期
+  componentWillMount() {
+    console.log('counterChild 2 componentWillMount 组件将要挂载')
+  }
+
+  componentDidMount() {
+    console.log('counterChild 4 componentDidMount 组件挂载完成')
+  }
+
+  componentUnMount() {
+    console.log('counterChild 8 componentDidMount 组件将要卸载')
+  }
+
+  componentWillReceiveProps() {
+    console.log('counterChild 8 props将要获取')
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log('counterChild 5 shouldComponentUpdate 决定组件是否更新')
+    return nextState.number % 2 === 0;
+  }
+
+  componentWillUpdate() {
+    console.log('counterChild 6 componentWillUpdate 组件要更新')
+  }
+
+  componentDidUpdate() {
+    console.log('counterChild 7 componentDidUpdate 组件更新完成')
+  }
+  
+
+  render() {
+    return (
+      <div>
+        子组件
+      </div>
+    )
+  }
+}
 
 ReactDOM.render(<Counter />, document.getElementById('root'));

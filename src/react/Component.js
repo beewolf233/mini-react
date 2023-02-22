@@ -29,6 +29,10 @@ class Updater {
       this.callbacks.push(callback);
     }
 
+    this.emitUpdate();
+  }
+  // 不管属性变 状态变 都会更新
+  emitUpdate(nextProps) {
     if (updateQueue.isBatchingUpdate) { // 如果当前是批量更新模式
       // this updater 实例
       updateQueue.updaters.add(this); // 本次setState调用结束
@@ -43,10 +47,7 @@ class Updater {
 
     // 如果有等待更新的状态对象
     if (pendingStates.length > 0) {
-      classInstance.state = this.getState();
-      classInstance.forceUpdate();
-      callbacks.forEach(cb => cb());
-      callbacks.length = 0;
+      shouldUpdate(classInstance, this.getState())
     }
   }
 
@@ -64,11 +65,20 @@ class Updater {
     pendingStates.length = 0; // 清空数组
     return state
   }
-
-
+  
 }
 
 
+/** 判断组件是否需要更新 */ 
+function shouldUpdate(classInstance, nextState) {
+  classInstance.state = nextState; // 不管组件要不要刷新， state一定会改变的
+  if (classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(classInstance.props, nextState)) {
+    return;
+  }
+  classInstance.forceUpdate();
+  // callbacks.forEach(cb => cb());
+  // callbacks.length = 0;
+}
 class Component {
 
   static isReactComponent = true;
@@ -92,8 +102,15 @@ class Component {
   }
 
   forceUpdate() {
+    if (this.componentWillUpdate) {
+      this.componentWillUpdate();
+    }
     let newVdom = this.render();
     updateClassComponent(this, newVdom)
+
+    if (this.componentDidUpdate) {
+      this.componentDidUpdate();
+    }
   }
 
   render() {

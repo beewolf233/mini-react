@@ -49,8 +49,15 @@ function mountClassComponent(vdom) {
   let { type, props } = vdom;
   // 创建类实例
   let classInstance = new type(props);
+  // 将要绑定生命周期
+  if (classInstance.componentWillMount) {
+    classInstance.componentWillMount();
+  }
   let renderVdom = classInstance.render();
   let dom =  createDOM(renderVdom);
+  if (classInstance.componentDidMount) {
+    dom.componentDidMount = classInstance.componentDidMount.bind(classInstance);
+  }
   // 为了以后类组件的更新 将真实dom 挂在到类的实例
   classInstance.dom = dom;
   return dom;
@@ -104,6 +111,7 @@ export function createDOM(vdom) {
 function render(vdom, container) {
   const dom = createDOM(vdom);
   container.appendChild(dom);
+  dom.componentDidMount && dom.componentDidMount();
 }
 
 const ReactDOM = {
